@@ -111,9 +111,23 @@ $(document).ready(function () {
 </div>
 
 
-<div id="section" class="section level38">
-<p></p>
-<p>title: “Prediction Assignment Writeup” author: “Rei Sivan” date: “March 20, 2016” output: html_document ###################################### The goal of your project is to predict the manner in which they did the exercise.</p>
+<table>
+<tbody>
+<tr class="odd">
+<td align="left">title: “Prediction Assignment Writeup”</td>
+</tr>
+<tr class="even">
+<td align="left">author: “Rei Sivan”</td>
+</tr>
+<tr class="odd">
+<td align="left">date: “March 20, 2016”</td>
+</tr>
+<tr class="even">
+<td align="left">output: html_document</td>
+</tr>
+</tbody>
+</table>
+<p>The goal of your project is to predict the manner in which they did the exercise.</p>
 <pre class="r"><code># Load data
 if (!file.exists(&quot;pml-training.csv&quot;)) {
     download.file(&quot;http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv&quot;, 
@@ -126,7 +140,7 @@ if (!file.exists(&quot;pml-testing.csv&quot;)) {
 
 training &lt;- read.csv('pml-training.csv', row.names = 1, stringsAsFactors = FALSE, na.strings = c(&quot;NA&quot;, &quot;&quot;,&quot;#DIV/0!&quot;))
 
-# Load library and set seed
+# Load library and set seed for consistency 
 library(caret)</code></pre>
 <pre><code>## Loading required package: lattice</code></pre>
 <pre><code>## Loading required package: ggplot2</code></pre>
@@ -137,11 +151,12 @@ training$classe &lt;- as.factor(training$classe)
 training &lt;- training[,-nearZeroVar(training)]
 training &lt;- training[,-c(1,2,3,4,5,6,7)]
 
+# There are many NA values in the data set, so we use KnnImpute method to impute those values. Besides, we try to standardize each features and use PCA to reduce features.
 inTrain &lt;- createDataPartition(y=training$classe, p=0.75, list=FALSE)
 training &lt;- training[inTrain,]
 testing &lt;- training[-inTrain,]
 
-preObj &lt;- preProcess(training[,-length(training)],method=c(&quot;center&quot;, &quot;scale&quot;, &quot;knnImpute&quot;, &quot;pca&quot;), thresh=0.9)
+preObj &lt;- preProcess(training[,-length(training)],method=c(&quot;center&quot;, &quot;scale&quot;, &quot;knnImpute&quot;, &quot;pca&quot;), thresh=0.95)
 clean_data &lt;- predict(preObj,training[,-length(training)])
 
 # Prediction - After getting the clean data set from the above processing, we use Knn method to build model. 
@@ -153,40 +168,39 @@ confusionMatrix(testing$classe, predict(modelFit,test))</code></pre>
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1034   12    8    8    1
-##          B   32  648   14    2    1
-##          C    8   10  609   13    2
-##          D    8    4   24  570    2
-##          E    5    2    4    5  655
+##          A 1039    9    5    5    5
+##          B   33  644   15    4    1
+##          C    7   10  610   14    1
+##          D    7    3   26  571    1
+##          E    0    2    6    5  658
 ## 
 ## Overall Statistics
-##                                          
-##                Accuracy : 0.9552         
-##                  95% CI : (0.948, 0.9616)
-##     No Information Rate : 0.2953         
-##     P-Value [Acc &gt; NIR] : &lt; 2e-16        
-##                                          
-##                   Kappa : 0.9432         
-##  Mcnemar's Test P-Value : 0.04498        
+##                                           
+##                Accuracy : 0.9568          
+##                  95% CI : (0.9497, 0.9631)
+##     No Information Rate : 0.295           
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9453          
+##  Mcnemar's Test P-Value : 0.0006587       
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9512   0.9586   0.9241   0.9532   0.9909
-## Specificity            0.9888   0.9837   0.9891   0.9877   0.9947
-## Pos Pred Value         0.9727   0.9297   0.9486   0.9375   0.9762
-## Neg Pred Value         0.9798   0.9906   0.9835   0.9909   0.9980
-## Prevalence             0.2953   0.1836   0.1790   0.1625   0.1796
-## Detection Rate         0.2809   0.1760   0.1654   0.1548   0.1779
+## Sensitivity            0.9567   0.9641   0.9215   0.9533   0.9880
+## Specificity            0.9908   0.9824   0.9894   0.9880   0.9957
+## Pos Pred Value         0.9774   0.9240   0.9502   0.9391   0.9806
+## Neg Pred Value         0.9820   0.9920   0.9829   0.9909   0.9973
+## Prevalence             0.2950   0.1815   0.1798   0.1627   0.1809
+## Detection Rate         0.2823   0.1750   0.1657   0.1551   0.1788
 ## Detection Prevalence   0.2888   0.1894   0.1744   0.1652   0.1823
-## Balanced Accuracy      0.9700   0.9711   0.9566   0.9704   0.9928</code></pre>
+## Balanced Accuracy      0.9737   0.9732   0.9554   0.9706   0.9918</code></pre>
 <pre class="r"><code># Finally, we use the testing data file and predict the reult as the following:
 testing &lt;- read.csv('pml-testing.csv', row.names = 1, stringsAsFactors = FALSE, na.strings = c(&quot;NA&quot;, &quot;&quot;,&quot;#DIV/0!&quot;))
 testing &lt;- testing[,names(testing) %in% names(training)]
 
 test &lt;- predict(preObj, testing)
 predict_result &lt;- predict(modelFit, test)</code></pre>
-</div>
 
 
 
