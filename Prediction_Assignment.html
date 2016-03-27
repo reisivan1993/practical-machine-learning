@@ -169,10 +169,10 @@ if (!file.exists(&quot;pml-testing.csv&quot;)) {
 <h3>Setp 3: Cleaning the data</h3>
 <p>Ignore “#DIV/0!” values because of the presence of some characters</p>
 <pre class="r"><code>training_data &lt;- read.csv(&quot;pml-training.csv&quot;, na.strings=c(&quot;#DIV/0!&quot;) )
-#testing_data &lt;- read.csv(&quot;pml-testing.csv&quot;, na.strings=c(&quot;#DIV/0!&quot;) )</code></pre>
+testing_data &lt;- read.csv(&quot;pml-testing.csv&quot;, na.strings=c(&quot;#DIV/0!&quot;) )</code></pre>
 <p>Cast to numeric values specified columns</p>
 <pre class="r"><code>for(i in c(8:ncol(training_data)-1)) {training_data[,i] = as.numeric(as.character(training_data[,i]))}
-#for(i in c(8:ncol(testing_data)-1)) {testing_data[,i] = as.numeric(as.character(testing_data[,i]))}</code></pre>
+for(i in c(8:ncol(testing_data)-1)) {testing_data[,i] = as.numeric(as.character(testing_data[,i]))}</code></pre>
 <p>Select only data with 100% completion rate and display the features</p>
 <pre class="r"><code>featuresnames &lt;- colnames(training_data[colSums(is.na(training_data)) == 0])[-(1:7)]
 features &lt;- training_data[featuresnames]
@@ -250,32 +250,52 @@ confusionMatrix(predictionsTe,testing$classe)</code></pre>
 ## Prediction    A    B    C    D    E
 ##          A 1395    6    0    0    0
 ##          B    0  941    4    0    0
-##          C    0    2  850    7    1
-##          D    0    0    1  796    0
-##          E    0    0    0    1  900
+##          C    0    2  850    6    0
+##          D    0    0    1  797    0
+##          E    0    0    0    1  901
 ## 
 ## Overall Statistics
 ##                                           
-##                Accuracy : 0.9955          
-##                  95% CI : (0.9932, 0.9972)
+##                Accuracy : 0.9959          
+##                  95% CI : (0.9937, 0.9975)
 ##     No Information Rate : 0.2845          
 ##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
 ##                                           
-##                   Kappa : 0.9943          
+##                   Kappa : 0.9948          
 ##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            1.0000   0.9916   0.9942   0.9900   0.9989
-## Specificity            0.9983   0.9990   0.9975   0.9998   0.9998
-## Pos Pred Value         0.9957   0.9958   0.9884   0.9987   0.9989
-## Neg Pred Value         1.0000   0.9980   0.9988   0.9981   0.9998
+## Sensitivity            1.0000   0.9916   0.9942   0.9913   1.0000
+## Specificity            0.9983   0.9990   0.9980   0.9998   0.9998
+## Pos Pred Value         0.9957   0.9958   0.9907   0.9987   0.9989
+## Neg Pred Value         1.0000   0.9980   0.9988   0.9983   1.0000
 ## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
-## Detection Rate         0.2845   0.1919   0.1733   0.1623   0.1835
-## Detection Prevalence   0.2857   0.1927   0.1754   0.1625   0.1837
-## Balanced Accuracy      0.9991   0.9953   0.9958   0.9949   0.9993</code></pre>
+## Detection Rate         0.2845   0.1919   0.1733   0.1625   0.1837
+## Detection Prevalence   0.2857   0.1927   0.1750   0.1627   0.1839
+## Balanced Accuracy      0.9991   0.9953   0.9961   0.9955   0.9999</code></pre>
 <p>The model is good as we can see in the consusion matrix. The focused metrics is around 99% and all of test cases are nearly to be correct.</p>
+</div>
+<div id="quiz-answers" class="section level2">
+<h2>Quiz Answers</h2>
+<pre class="r"><code>pml_write_files = function(x){
+  n = length(x)
+  for(i in 1:n){
+    filename = paste0(&quot;problem_id_&quot;,i,&quot;.txt&quot;)
+    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}
+
+x &lt;- testing_data
+x &lt;- x[featuresnames[featuresnames!='classe']]
+
+answers &lt;- predict(model, newdata=x)
+answers</code></pre>
+<pre><code>##  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 
+##  B  A  B  A  A  E  D  B  A  A  B  C  B  A  E  E  A  B  B  B 
+## Levels: A B C D E</code></pre>
+<pre class="r"><code>pml_write_files(answers)</code></pre>
 </div>
 
 

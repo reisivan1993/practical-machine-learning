@@ -34,12 +34,12 @@ if (!file.exists("pml-testing.csv")) {
 Ignore "#DIV/0!" values because of the presence of some characters
 ```{r}
 training_data <- read.csv("pml-training.csv", na.strings=c("#DIV/0!") )
-#testing_data <- read.csv("pml-testing.csv", na.strings=c("#DIV/0!") )
+testing_data <- read.csv("pml-testing.csv", na.strings=c("#DIV/0!") )
 ```
 Cast to numeric values specified columns
 ```{r}
 for(i in c(8:ncol(training_data)-1)) {training_data[,i] = as.numeric(as.character(training_data[,i]))}
-#for(i in c(8:ncol(testing_data)-1)) {testing_data[,i] = as.numeric(as.character(testing_data[,i]))}
+for(i in c(8:ncol(testing_data)-1)) {testing_data[,i] = as.numeric(as.character(testing_data[,i]))}
 ```
 Select only data with 100% completion rate and display the features
 ```{r}
@@ -73,3 +73,20 @@ confusionMatrix(predictionsTe,testing$classe)
 ```
 The model is good as we can see in the consusion matrix. The focused metrics is around 99%  and all of test cases are nearly to be correct.
 
+##Quiz Answers
+```{r}
+pml_write_files = function(x){
+  n = length(x)
+  for(i in 1:n){
+    filename = paste0("problem_id_",i,".txt")
+    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}
+
+x <- testing_data
+x <- x[featuresnames[featuresnames!='classe']]
+
+answers <- predict(model, newdata=x)
+answers
+pml_write_files(answers)
+```
