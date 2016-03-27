@@ -1,0 +1,75 @@
+---
+title: "Prediction Assignment Writeup"
+author: "Rei Sivan"
+date: "March 20, 2016"
+output: html_document
+---
+The goal of this project is to predict the manner in which they did the exercise.
+In order to generate correct answers for each of the 20 use cases of this assinment i've used caret and randomForest libraries and for data analysis i've used Hmisc and for reduceing processing time i've used in foreach and doParallel.
+Also set a seed for reproducible my results 
+
+###Step 1: Load used Libraries + set seed
+```{r}
+options(warn=-1)
+suppressWarnings(library(Hmisc))
+suppressWarnings(library(caret))
+suppressWarnings(library(randomForest))
+suppressWarnings(library(foreach))
+suppressWarnings(library(doParallel))
+set.seed(3251)
+```
+###Step 2: Load data
+if not exist download the files from online 
+```{r}
+if (!file.exists("pml-training.csv")) {
+    download.file("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv", 
+                  destfile = "pml-training.csv")
+}
+if (!file.exists("pml-testing.csv")) {
+    download.file("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv", 
+                  destfile = "pml-testing.csv")
+}
+```
+###Setp 3: Cleaning the data
+Ignore "#DIV/0!" values because of the presence of some characters
+```{r}
+training_data <- read.csv("pml-training.csv", na.strings=c("#DIV/0!") )
+#testing_data <- read.csv("pml-testing.csv", na.strings=c("#DIV/0!") )
+```
+Cast to numeric values specified columns
+```{r}
+for(i in c(8:ncol(training_data)-1)) {training_data[,i] = as.numeric(as.character(training_data[,i]))}
+#for(i in c(8:ncol(testing_data)-1)) {testing_data[,i] = as.numeric(as.character(testing_data[,i]))}
+```
+Select only data with 100% completion rate and display the features
+```{r}
+featuresnames <- colnames(training_data[colSums(is.na(training_data)) == 0])[-(1:7)]
+features <- training_data[featuresnames]
+featuresnames
+```
+###Step 6: Split data
+After we clean our data we can split the dataset in two : traning and testing
+```{r}
+index <- createDataPartition(y=features$classe, p=0.75, list=FALSE )
+training <- features[index,]
+testing <- features[-index,]
+```
+###Step 7: Build Model
+Now we can build our models. To do so We use doParallel package
+By default it use the half of the cores that your machine have.
+to know what is your configuration type WMIC CPU Get DeviceID,NumberOfCores,NumberOfLogicalProcessors in cmd
+```{r}
+registerDoParallel()
+model <- foreach(ntree=rep(150, 2), .combine=randomForest::combine, .packages='randomForest') %dopar% {randomForest(training[-ncol(training)], training$classe, ntree=ntree)}
+```
+Finally we will you confusionMatrix to evaluate our model.
+We will focus on the follow metrics: Sensitivity,Specificity and Accuracy
+```{r}
+predictionsTr <- predict(model, newdata=training)
+confusionMatrix(predictionsTr,training$classe)
+
+predictionsTe <- predict(model, newdata=testing)
+confusionMatrix(predictionsTe,testing$classe)
+```
+The model is good as we can see in the consusion matrix. The focused metrics is around 99%  and all of test cases are nearly to be correct.
+
