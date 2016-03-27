@@ -47,14 +47,14 @@ featuresnames <- colnames(training_data[colSums(is.na(training_data)) == 0])[-(1
 features <- training_data[featuresnames]
 featuresnames
 ```
-###Step 6: Split data
+###Step 4: Split data
 After we clean our data we can split the dataset in two : traning and testing
 ```{r}
 index <- createDataPartition(y=features$classe, p=0.75, list=FALSE )
 training <- features[index,]
 testing <- features[-index,]
 ```
-###Step 7: Build Model
+###Step 5: Build Model
 Now we can build our models. To do so We use doParallel package
 By default it use the half of the cores that your machine have.
 to know what is your configuration type WMIC CPU Get DeviceID,NumberOfCores,NumberOfLogicalProcessors in cmd

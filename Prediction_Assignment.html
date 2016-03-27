@@ -196,15 +196,15 @@ featuresnames</code></pre>
 ## [49] &quot;accel_forearm_z&quot;      &quot;magnet_forearm_x&quot;     &quot;magnet_forearm_y&quot;    
 ## [52] &quot;magnet_forearm_z&quot;     &quot;classe&quot;</code></pre>
 </div>
-<div id="step-6-split-data" class="section level3">
-<h3>Step 6: Split data</h3>
+<div id="step-4-split-data" class="section level3">
+<h3>Step 4: Split data</h3>
 <p>After we clean our data we can split the dataset in two : traning and testing</p>
 <pre class="r"><code>index &lt;- createDataPartition(y=features$classe, p=0.75, list=FALSE )
 training &lt;- features[index,]
 testing &lt;- features[-index,]</code></pre>
 </div>
-<div id="step-7-build-model" class="section level3">
-<h3>Step 7: Build Model</h3>
+<div id="step-5-build-model" class="section level3">
+<h3>Step 5: Build Model</h3>
 <p>Now we can build our models. To do so We use doParallel package By default it use the half of the cores that your machine have. to know what is your configuration type WMIC CPU Get DeviceID,NumberOfCores,NumberOfLogicalProcessors in cmd</p>
 <pre class="r"><code>registerDoParallel()
 model &lt;- foreach(ntree=rep(150, 2), .combine=randomForest::combine, .packages='randomForest') %dopar% {randomForest(training[-ncol(training)], training$classe, ntree=ntree)}</code></pre>
@@ -249,32 +249,32 @@ confusionMatrix(predictionsTe,testing$classe)</code></pre>
 ##           Reference
 ## Prediction    A    B    C    D    E
 ##          A 1395    6    0    0    0
-##          B    0  942    3    0    0
-##          C    0    1  852    8    0
-##          D    0    0    0  795    0
-##          E    0    0    0    1  901
+##          B    0  941    4    0    0
+##          C    0    2  850    7    1
+##          D    0    0    1  796    0
+##          E    0    0    0    1  900
 ## 
 ## Overall Statistics
-##                                          
-##                Accuracy : 0.9961         
-##                  95% CI : (0.994, 0.9977)
-##     No Information Rate : 0.2845         
-##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
-##                                          
-##                   Kappa : 0.9951         
-##  Mcnemar's Test P-Value : NA             
+##                                           
+##                Accuracy : 0.9955          
+##                  95% CI : (0.9932, 0.9972)
+##     No Information Rate : 0.2845          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9943          
+##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            1.0000   0.9926   0.9965   0.9888   1.0000
-## Specificity            0.9983   0.9992   0.9978   1.0000   0.9998
-## Pos Pred Value         0.9957   0.9968   0.9895   1.0000   0.9989
-## Neg Pred Value         1.0000   0.9982   0.9993   0.9978   1.0000
+## Sensitivity            1.0000   0.9916   0.9942   0.9900   0.9989
+## Specificity            0.9983   0.9990   0.9975   0.9998   0.9998
+## Pos Pred Value         0.9957   0.9958   0.9884   0.9987   0.9989
+## Neg Pred Value         1.0000   0.9980   0.9988   0.9981   0.9998
 ## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
-## Detection Rate         0.2845   0.1921   0.1737   0.1621   0.1837
-## Detection Prevalence   0.2857   0.1927   0.1756   0.1621   0.1839
-## Balanced Accuracy      0.9991   0.9959   0.9971   0.9944   0.9999</code></pre>
+## Detection Rate         0.2845   0.1919   0.1733   0.1623   0.1835
+## Detection Prevalence   0.2857   0.1927   0.1754   0.1625   0.1837
+## Balanced Accuracy      0.9991   0.9953   0.9958   0.9949   0.9993</code></pre>
 <p>The model is good as we can see in the consusion matrix. The focused metrics is around 99% and all of test cases are nearly to be correct.</p>
 </div>
 
